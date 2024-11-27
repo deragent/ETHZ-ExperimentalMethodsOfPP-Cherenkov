@@ -11,6 +11,7 @@ public:
 	~PositionDetector() = default;
 
 private:
+	// Function to be called for each particle entering the sensitive volume
 	virtual G4bool ProcessHits(G4Step *, G4TouchableHistory *);
 
   HitManager* hits;

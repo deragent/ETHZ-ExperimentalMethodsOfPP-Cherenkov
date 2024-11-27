@@ -59,6 +59,9 @@ class ParticleGun : public G4VUserPrimaryGeneratorAction
 };
 
 
+//
+// Event / Run handler initialization
+//
 class ActionInitialization : public G4VUserActionInitialization
 {
 public:
@@ -119,6 +122,7 @@ int main(int argc, char** argv)
   runManager->SetUserInitialization(physicsList);
 
 
+  // Helper class to handle the data storage
   auto hits = new HitManager();
 
   // Create the Detector
@@ -129,7 +133,8 @@ int main(int argc, char** argv)
   runManager->SetUserInitialization(new ActionInitialization(hits));
 
 
-  // Initialize visualization
+  // Setup the run manager / visualization
+  //
   G4VisManager* visManager = new G4VisExecutive;
   visManager->Initialize();
 

@@ -16,12 +16,15 @@ class HitManager : public G4UserRunAction, G4UserEventAction
 public:
   HitManager();
 
+  // Functions called at the start and end of each run
   void BeginOfRunAction(const G4Run*) override;
   void EndOfRunAction(const G4Run*) override;
 
+  // Functions called at the start and end of each event (1 simulated primary particle)
   void BeginOfEventAction(const G4Event*) override;
   void EndOfEventAction(const G4Event*) override;
 
+  // Function called by the PositionDetector to add a detected photon
   void AddHit(double, double);
 
 private:

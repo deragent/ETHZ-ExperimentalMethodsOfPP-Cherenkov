@@ -17,16 +17,14 @@
 SimpleCherenkovTankConstruction::SimpleCherenkovTankConstruction(HitManager* hits)
 {
   this->hits = hits;
-  DefineMaterials();
-}
 
-void SimpleCherenkovTankConstruction::DefineMaterials()
-{
-  //***Materials
+
+  // Define / retrieve the necessary materials
   fAir = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
   fWater = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
 
-  //***Material properties tables
+
+  // Optical properties for water
   // Values for water from:
   // https://github.com/WCSim/WCSim/blob/develop/src/WCSimConstructMaterials.cc
   std::vector<G4double> water_Energy =
@@ -103,35 +101,45 @@ void SimpleCherenkovTankConstruction::DefineMaterials()
 
 G4VPhysicalVolume* SimpleCherenkovTankConstruction::Construct()
 {
+  // Geometrical sizes
+  G4double tank_x = 30 * CLHEP::m;
+  G4double tank_y = 30 * CLHEP::m;
+  G4double tank_z = 30 * CLHEP::m;
+
+  G4double sensor_thickness = 2 * CLHEP::mm;
+
   // The experimental hall walls are all 1m away from the water volume
-  G4double expHall_x = fTank_x + 1. * m;
-  G4double expHall_y = fTank_y + 1. * m;
-  G4double expHall_z = fTank_z + 1. * m;
+  G4double expHall_x = tank_x + 1. * m;
+  G4double expHall_y = tank_y + 1. * m;
+  G4double expHall_z = tank_z + 1. * m;
 
   // Create experimental hall
-  fExperimentalHall_box = new G4Box("expHall_box", expHall_x, expHall_y, expHall_z);
+  auto fExperimentalHall_box = new G4Box("expHall_box", expHall_x, expHall_y, expHall_z);
   fExperimentalHall_log = new G4LogicalVolume(fExperimentalHall_box, fAir, "expHall_log");
-  fExperimentalHall_phys = new G4PVPlacement(nullptr, G4ThreeVector(), fExperimentalHall_log, "expHall", nullptr, false, 0);
+  auto fExperimentalHall_phys = new G4PVPlacement(nullptr, G4ThreeVector(), fExperimentalHall_log, "expHall", nullptr, false, 0);
 
+  // Do not show the experimental hall in the visualization
   fExperimentalHall_log->SetVisAttributes(G4VisAttributes::GetInvisible());
 
 
   // Create the main water volume
-  fWater_box = new G4Box("water_box", fTank_x, fTank_y, fTank_z);
+  auto fWater_box = new G4Box("water_box", tank_x, tank_y, tank_z);
   fWater_log = new G4LogicalVolume(fWater_box, fWater, "water_log");
-  fWater_phys = new G4PVPlacement(nullptr, G4ThreeVector(), fWater_log, "water", fExperimentalHall_log, false, 0);
+  auto fWater_phys = new G4PVPlacement(nullptr, G4ThreeVector(), fWater_log, "water", fExperimentalHall_log, false, 0);
 
 
-  // Create the (Silicon) sensor volume
-  fSensor_box = new G4Box("sensor_box", fTank_x, fTank_y, fSensor_thickness);
+  // Create the (fake) sensitive volume
+  // In order to not have reflections, our senstive volume is also water
+  auto fSensor_box = new G4Box("sensor_box", tank_x, tank_y, sensor_thickness);
   fSensor_log = new G4LogicalVolume(fSensor_box, fWater, "sensor_log");
-  fSensor_phys = new G4PVPlacement(nullptr, G4ThreeVector(0, 0, fTank_z + fSensor_thickness), fSensor_log, "sensor", fExperimentalHall_log, false, 0);
+  auto fSensor_phys = new G4PVPlacement(nullptr, G4ThreeVector(0, 0, tank_z + sensor_thickness), fSensor_log, "sensor", fExperimentalHall_log, false, 0);
 
   return fExperimentalHall_phys;
 }
 
 void SimpleCherenkovTankConstruction::ConstructSDandField()
 {
+  // Assign a detector handler to our (fake) sensor volume
   PositionDetector *sensDet = new PositionDetector("PositionDetector", hits);
   fSensor_log->SetSensitiveDetector(sensDet);
 }
