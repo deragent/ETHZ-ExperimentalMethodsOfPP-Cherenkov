@@ -19,6 +19,9 @@
 # Draw smooth trajectories at end of event
 /vis/scene/add/trajectories smooth
 
+# Add an arrow simulating the path of the neutrino
+/vis/scene/add/arrow 0 0 -60 0 0 0 m
+
 
 # To superimpose all of the events from a given run:
 /vis/scene/endOfEventAction accumulate
