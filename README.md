@@ -37,7 +37,7 @@ When running from a non X11 terminal, or to run multiple events in batch mode, u
     ./SimpleCherenkovTank Cherenkov.mac
 
 This (by default), will run 5 events with 1GeV electrons (e-) as the primary particles.
-The resulting Cherenkov _images_ will be stored in the file _Cherenkov.root_.
+The resulting Cherenkov _images_ will be stored in the file _Cherenkov_e-_1000MeV.root_.
 
 The simulation can be configured (without recompilation) as following:
 
