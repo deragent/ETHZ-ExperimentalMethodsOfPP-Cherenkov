@@ -1,5 +1,8 @@
 #include "SimpleCherenkovTankConstruction.hh"
 
+#include "HitManager.hh"
+#include "PositionDetector.hh"
+
 #include "globals.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
@@ -11,28 +14,19 @@
 #include "G4PVPlacement.hh"
 #include "G4NistManager.hh"
 
-SimpleCherenkovTankConstruction::SimpleCherenkovTankConstruction()
+SimpleCherenkovTankConstruction::SimpleCherenkovTankConstruction(HitManager* hits)
 {
-    DefineMaterials();
+  this->hits = hits;
+  DefineMaterials();
 }
 
 void SimpleCherenkovTankConstruction::DefineMaterials()
 {
-  G4double a;  // atomic mass
-  G4double z;  // atomic number
-
-  G4double density; // material density
-
-  //***Elements
-  G4Element* fH = new G4Element("H", "H", z = 1., a = 1.01 * g / mole);
-  G4Element* fO = new G4Element("O", "O", z = 8., a = 16.00 * g / mole);
-
   //***Materials
   fAir = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
   fWater = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
 
   //***Material properties tables
-
   // Values for water from:
   // https://github.com/WCSim/WCSim/blob/develop/src/WCSimConstructMaterials.cc
   std::vector<G4double> water_Energy =
@@ -127,9 +121,17 @@ G4VPhysicalVolume* SimpleCherenkovTankConstruction::Construct()
   fWater_log = new G4LogicalVolume(fWater_box, fWater, "water_log");
   fWater_phys = new G4PVPlacement(nullptr, G4ThreeVector(), fWater_log, "water", fExperimentalHall_log, false, 0);
 
+
+  // Create the (Silicon) sensor volume
+  fSensor_box = new G4Box("sensor_box", fTank_x, fTank_y, fSensor_thickness);
+  fSensor_log = new G4LogicalVolume(fSensor_box, fWater, "sensor_log");
+  fSensor_phys = new G4PVPlacement(nullptr, G4ThreeVector(0, 0, fTank_z + fSensor_thickness), fSensor_log, "sensor", fExperimentalHall_log, false, 0);
+
   return fExperimentalHall_phys;
 }
 
 void SimpleCherenkovTankConstruction::ConstructSDandField()
 {
+  PositionDetector *sensDet = new PositionDetector("PositionDetector", hits);
+  fSensor_log->SetSensitiveDetector(sensDet);
 }

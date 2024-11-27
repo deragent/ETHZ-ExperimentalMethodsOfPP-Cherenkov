@@ -1,10 +1,9 @@
 #pragma once
 
-#include "G4Cache.hh"
 #include "G4VUserDetectorConstruction.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
 
-class FakePixelDetector;
+class HitManager;
 
 class G4Box;
 // class G4Element;
@@ -16,7 +15,7 @@ class G4VPhysicalVolume;
 class SimpleCherenkovTankConstruction : public G4VUserDetectorConstruction
 {
 public:
-  SimpleCherenkovTankConstruction();
+  SimpleCherenkovTankConstruction(HitManager*);
   ~SimpleCherenkovTankConstruction() override = default;
 
   G4VPhysicalVolume* Construct() override;
@@ -33,6 +32,10 @@ private:
   G4LogicalVolume* fWater_log = nullptr;
   G4VPhysicalVolume* fWater_phys = nullptr;
 
+  G4Box* fSensor_box = nullptr;
+  G4LogicalVolume* fSensor_log = nullptr;
+  G4VPhysicalVolume* fSensor_phys = nullptr;
+
   // Materials
   G4Material* fAir = nullptr;
   G4Material* fWater = nullptr;
@@ -42,6 +45,7 @@ private:
   G4double fTank_y = 30 * CLHEP::m;
   G4double fTank_z = 30 * CLHEP::m;
 
-  // Sensitive Detector
-  G4Cache<FakePixelDetector*> fPixel_SD;
+  G4double fSensor_thickness = 2 * CLHEP::mm;
+
+  HitManager* hits;
 };

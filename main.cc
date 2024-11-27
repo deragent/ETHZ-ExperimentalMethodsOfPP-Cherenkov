@@ -23,22 +23,7 @@
 // Project Include Files
 //
 #include "SimpleCherenkovTankConstruction.hh"
-
-
-// class CherenkovAction : public G4UserRunAction, G4UserEventAction
-// {
-// public:
-//   CherenkovAction()
-//
-//   void BeginOfRunAction(const G4Run*) override
-//   {
-//
-//   }
-//   void EndOfRunAction(const G4Run*) override
-//   {
-//
-//   }
-// }
+#include "HitManager.hh"
 
 
 //
@@ -77,17 +62,29 @@ class ParticleGun : public G4VUserPrimaryGeneratorAction
 class ActionInitialization : public G4VUserActionInitialization
 {
 public:
-  ActionInitialization() = default;
+  ActionInitialization(HitManager* hits)
+  {
+    this->hits = hits;
+  }
   ~ActionInitialization() override = default;
+
+  void BuildForMaster() const override
+  {
+    // Handles runs
+    SetUserAction((G4UserRunAction*)hits);
+  }
 
   void Build() const override
   {
     // Handles primary particle generation
     SetUserAction(new ParticleGun());
 
-    // Handles runs and events
-    // SetUserAction(new CherenkovAction()); // TODO
+    // Handles events
+    SetUserAction((G4UserEventAction*)hits);
   }
+
+private:
+  HitManager* hits;
 };
 
 
@@ -105,13 +102,6 @@ int main(int argc, char** argv)
   auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 
 
-
-  // Create the Detector
-  auto det = new SimpleCherenkovTankConstruction();
-  runManager->SetUserInitialization(det);
-
-
-
   // Configure the Physics of the Simulation
   //
   G4VModularPhysicsList* physicsList = new FTFP_BERT;
@@ -123,18 +113,21 @@ int main(int argc, char** argv)
 
   opticalParams->SetCerenkovMaxPhotonsPerStep(100);
   opticalParams->SetCerenkovMaxBetaChange(10.0);
-  opticalParams->SetCerenkovTrackSecondariesFirst(true);
+  opticalParams->SetCerenkovTrackSecondariesFirst(false);
 
   physicsList->RegisterPhysics(opticalPhysics);
   runManager->SetUserInitialization(physicsList);
 
 
+  auto hits = new HitManager();
+
+  // Create the Detector
+  auto det = new SimpleCherenkovTankConstruction(hits);
+  runManager->SetUserInitialization(det);
 
   // Initialize user defined actions
-  runManager->SetUserInitialization(new ActionInitialization());
+  runManager->SetUserInitialization(new ActionInitialization(hits));
 
-  // Initialize G4 kernel
-  runManager->Initialize();
 
   // Initialize visualization
   G4VisManager* visManager = new G4VisExecutive;
@@ -143,14 +136,7 @@ int main(int argc, char** argv)
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
   if(ui)
   {
-    // interactive mode
-    if(ui->IsGUI())
-    {
-      UImanager->ApplyCommand("/control/execute gui.mac");
-    } else
-    {
-      UImanager->ApplyCommand("/control/execute vis.mac");
-    }
+    UImanager->ApplyCommand("/control/execute vis.mac");
     ui->SessionStart();
     delete ui;
   }
@@ -162,10 +148,5 @@ int main(int argc, char** argv)
     UImanager->ApplyCommand(command + fileName);
   }
 
-  // Job termination
-  delete visManager;
-  delete runManager;
   return 0;
-
-
 }

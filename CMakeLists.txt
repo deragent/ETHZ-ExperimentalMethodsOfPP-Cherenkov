@@ -41,7 +41,6 @@ target_link_libraries(SimpleCherenkovTank ${Geant4_LIBRARIES} )
 # relies on these scripts being in the current working directory.
 #
 set(MAC_SCRIPTS
-    gui.mac
     vis.mac
    )
 
