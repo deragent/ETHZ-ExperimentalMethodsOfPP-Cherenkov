@@ -12,7 +12,7 @@
 /gun/energy 1000 MeV
 
 # Set the output file
-/analysis/setFileName Cherenkov.root
+/analysis/setFileName Cherenkov_e-_1000MeV.root
 
 # Simulated N amount of events
 /run/beamOn 5

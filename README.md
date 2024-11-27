@@ -43,7 +43,7 @@ The simulation can be configured (without recompilation) as following:
 
 - To change the type of primary particle, change `/gun/particle e-`
 - To change the primary particle energy, change `/gun/energy 1000 MeV`
-- To change the output file name, change: `/analysis/setFileName Cherenkov.root`
+- To change the output file name, change: `/analysis/setFileName Cherenkov_e-_1000MeV.root`
 - To change the number of events, change: `/run/beamOn 5`
 
 
