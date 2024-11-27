@@ -42,11 +42,12 @@ target_link_libraries(SimpleCherenkovTank ${Geant4_LIBRARIES} )
 #
 set(MAC_SCRIPTS
     vis.mac
+    Cherenkov.mac
    )
 
 foreach(_script ${MAC_SCRIPTS})
   configure_file(
-    ${PROJECT_SOURCE_DIR}/${_script}
+    ${PROJECT_SOURCE_DIR}/macros/${_script}
     ${PROJECT_BINARY_DIR}/${_script}
     COPYONLY
     )

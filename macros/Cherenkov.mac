@@ -1,0 +1,15 @@
+/control/verbose 1
+/tracking/verbose 0
+/run/verbose 1
+# /control/cout/ignoreThreadsExcept 0
+
+# /run/numberOfThreads 1
+/run/initialize
+
+
+/gun/particle mu-
+/gun/momentumAmp 1000 MeV
+
+/analysis/setFileName Cherenkov.root
+
+/run/beamOn 5
